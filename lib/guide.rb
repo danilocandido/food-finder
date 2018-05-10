@@ -2,6 +2,11 @@ require_relative 'restaurant'
 
 class Guide
 
+  class Config
+    @@actions = %w(list find add quit)
+    def self.actions; @@actions; end
+  end
+
   def initialize(path=nil)
     Restaurant.filepath = path
     if Restaurant.file_usable?
@@ -16,15 +21,24 @@ class Guide
 
   def launch!
     introduction
-    
+
     result = nil
     until result == :quit
-      print "> "
-      user_response = gets.chomp
-
-      result = do_action(user_response)
+      action = get_action
+      result = do_action(action)
     end
     conclusion
+  end
+
+  def get_action
+    action = nil
+    until Guide::Config.actions.include?(action)
+      puts "Actions: " + Guide::Config.actions.join(', ') if action
+      print "> "
+      user_response = gets.chomp
+      action = user_response.downcase.strip
+    end
+    action
   end
 
   def do_action(action)
